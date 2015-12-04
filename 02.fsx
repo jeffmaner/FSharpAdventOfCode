@@ -1,3 +1,6 @@
+// Day02 is my initial, functional approach to the solution.
+// Day02C is my more object-oriented approach to the solution. I think I like
+// it better in this instance.
 module Day02 =
   type Surface = { length : int; width : int; area : int; perimeter : int }
   let makeSurface l w = { length = l; width = w; area = l * w; perimeter = 2 * (l + w) }
@@ -42,7 +45,7 @@ module Day02C =
 
   type Present (l, w, h) =
       let face = new Surface(l, w)
-      let top = new Surface(w, h)
+      let top  = new Surface(w, h)
       let side = new Surface(h, l)
       member p.SurfaceArea = 2 * (face.Area + top.Area + side.Area)
       member p.Volume = l * w * h
