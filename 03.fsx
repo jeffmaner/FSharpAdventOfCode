@@ -1,5 +1,7 @@
 module Day03
 
+open System.IO
+
 let move = function
     | '^' -> ( 0, -1)
     | 'v' -> ( 0,  1)
@@ -11,9 +13,17 @@ let nextHouse (x,y) c =
     let m = move c
      in (x + fst m, y + snd m)
 
+let inline distinct xs = List.distinct xs
+let inline length xs = List.length xs
+let inline reduce xs = List.reduce xs
+let inline chunkBySize n xs = List.chunkBySize n xs
+let inline map xs = List.map xs
+
+let (</>) p q = Path.Combine (p, q)
+
 let directions =
-  @"c:/users/jeff.maner/source/repos/fsharp/adventofcode/03.input"
-  |> System.IO.File.ReadAllText
+  __SOURCE_DIRECTORY__ </> "03.input"
+  |> File.ReadAllText
   |> List.ofSeq
 
 // Part One.
@@ -26,13 +36,13 @@ let deliver ds =
                       in house :: visitHouses house ds''
 
     let houses = visitHouses initialHouse ds
-     in initialHouse :: houses |> (List.distinct >> List.length)
+     in initialHouse :: houses |> (distinct >> length)
 
 let test1 = 2 = deliver ['>']
 let test2 = 4 = deliver ['^';'>';'v';'<']
 let test3 = 2 = deliver ['^';'v';'^';'v';'^';'v';'^';'v';'^';'v']
 
-List.reduce (&&) [test1; test2; test3]
+reduce (&&) [test1; test2; test3]
 
 deliver directions // 2592
 
@@ -49,15 +59,15 @@ let deliverWithHelp ds =
                      | x::y::[] -> (x,y)
                      | _        -> failwith "Undefined"
 
-    let newDirections = List.chunkBySize 2 ds |> List.map toTuple
+    let newDirections = chunkBySize 2 ds |> map toTuple
     let houses = visitHouses initialHouse initialHouse newDirections
-     in initialHouse :: initialHouse :: houses |> (List.distinct >> List.length)
+     in initialHouse :: initialHouse :: houses |> (distinct >> length)
 
 let test4 =  3 = deliverWithHelp ['^';'v']
 let test5 =  3 = deliverWithHelp ['^';'>';'v';'<']
 let test6 = 11 = deliverWithHelp ['^';'v';'^';'v';'^';'v';'^';'v';'^';'v']
 
-List.reduce (&&) [test4; test5; test6]
+reduce (&&) [test4; test5; test6]
 
 deliverWithHelp directions // 2360
 

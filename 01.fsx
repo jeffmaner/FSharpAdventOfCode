@@ -1,13 +1,17 @@
 module Day01
 
+open System.IO
+
 let upOrDown = function
     | '(' ->  1
     | ')' -> -1
     |  _  ->  0
 
+let (</>) p q = Path.Combine (p, q)
+
 let instructions =
-  @"c:/users/jeff.maner/source/repos/fsharp/adventofcode/01.input"
-  |> System.IO.File.ReadAllText
+  __SOURCE_DIRECTORY__ </> "01.input"
+  |> File.ReadAllText
   |> List.ofSeq
 
 // First Part.
