@@ -62,8 +62,8 @@ module Day02C =
       member p.RequiredWrappingPaperSquareFeet = p.SurfaceArea + p.SmallestSurface.Area
       member p.RequiredRibbonFeet = p.SmallestSurface.Perimeter + p.Volume
 
-  let inline map xs = Seq.map xs
-  let inline sum xs = Seq.sum xs
+  let inline map f xs = Seq.map f xs
+  let inline sum   xs = Seq.sum   xs
 
   let (</>) p q = Path.Combine (p, q)
 

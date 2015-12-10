@@ -14,10 +14,10 @@ let nextHouse (x,y) c =
      in (x + fst m, y + snd m)
 
 let inline distinct xs = List.distinct xs
-let inline length xs = List.length xs
-let inline reduce xs = List.reduce xs
+let inline length   xs = List.length   xs
+let inline reduce f xs = List.reduce f xs
 let inline chunkBySize n xs = List.chunkBySize n xs
-let inline map xs = List.map xs
+let inline map    f xs = List.map    f xs
 
 let (</>) p q = Path.Combine (p, q)
 

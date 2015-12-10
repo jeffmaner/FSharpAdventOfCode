@@ -2,21 +2,21 @@ module Day05
 
 open System.IO
 
-let inline all      xs = List.forall  xs
-let inline contains xs = Seq.contains xs
-let inline exists   xs = List.exists  xs
-let inline filter   xs = Seq.filter   xs
-let inline first    xs = Array.head   xs
-let inline groupBy  xs = Seq.groupBy  xs
-let inline indexed  xs = Seq.indexed  xs
-let inline last     xs = Array.last   xs
-let inline length   xs = Seq.length   xs
-let inline map      xs = Seq.map      xs
-let inline pairwise xs = Seq.pairwise xs
-let inline reduce   xs = Seq.reduce   xs
-let inline toList   xs = List.ofSeq   xs
-let inline toSeq    xs = List.toSeq   xs
-let inline windowed xs = Seq.windowed xs
+let inline all      f xs = List.forall  f xs
+let inline contains f xs = Seq.contains f xs
+let inline exists   f xs = List.exists  f xs
+let inline filter   f xs = Seq.filter   f xs
+let inline first      xs = Array.head     xs
+let inline groupBy  f xs = Seq.groupBy  f xs
+let inline indexed    xs = Seq.indexed    xs
+let inline last       xs = Array.last     xs
+let inline length     xs = Seq.length     xs
+let inline map      f xs = Seq.map      f xs
+let inline pairwise   xs = Seq.pairwise   xs
+let inline reduce   f xs = Seq.reduce   f xs
+let inline toList     xs = List.ofSeq     xs
+let inline toSeq      xs = List.toSeq     xs
+let inline windowed n xs = Seq.windowed n xs
 
 // A la Haskell.
 let (</>) p q = Path.Combine (p,q)
