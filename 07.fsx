@@ -2,102 +2,77 @@ module Day07
 
 open System.IO
 
+type Wires = Map<string,int>
+
 let (</>) p q = Path.Combine (p,q)
-
 let words (s:string) = s.Split ' '
-
-let map f xs = Seq.map f xs
 
 let isNumeric = System.Int32.TryParse >> fst
 
-type Signal = int
-type Identifier = string
+let assign w v m = Map.add w v m
 
-type Wire = { identifier: Identifier; signal: Signal }
+let doBinaryGate g i j w (m:Wires) =
+    let i',j' =
+        match isNumeric i, isNumeric j with
+        | true, true -> (int i , int j )
+        | true, _    -> (int i ,  m.[j])
+        | _   , true -> ( m.[i], int j )
+        | _   , _    -> ( m.[i],  m.[j])
+    let v = g i' j'
+     in assign w v m
 
-type Throughput =
-     | Wire of Wire
-     | Signal of Signal
+let toSignal i m = if isNumeric i then int i else Map.find i m
 
-type Gate =
-     | AND    of (Throughput -> Throughput -> Throughput -> Throughput)
-     | LSHIFT of (Throughput -> Throughput -> Throughput -> Throughput)
-     | NOT    of (Wire -> Wire -> Wire)
-     | OR     of (Throughput -> Throughput -> Throughput -> Throughput)
-     | RSHIFT of (Throughput -> Throughput -> Throughput -> Throughput)
-
-type Operation =
-     | AssignWireToWire of (Wire -> Wire -> Wire)
-     | AssignSignalToWire of (Signal -> Wire -> Wire)
-     | Gate of Gate
-
-let makeThroughput x =
-    if isNumeric x
-    then Signal <| int x
-    else Wire { identifier = x; signal = 0 }
-
-type Instruction = { input: Throughput list; operation: Operation; output: Throughput }
+let doAnd    = doBinaryGate (&&&)
+let doOr     = doBinaryGate (|||)
+let doLShift = doBinaryGate (<<<)
+let doRShift = doBinaryGate (>>>)
+let doNot i w m =
+    let v = toSignal i m |> (uint16 >> (~~~) >> int)
+     in assign w v m
 
 let arrow = "->"
 
-let makeAssignment (s:Throughput) (d:Throughput) =
-    match (s,d) with
-    | Signal s', d' -> AssignSignalToWire (fun s' d' -> { d' with signal=s' })
-    | Wire   s', d' -> AssignWireToWire   (fun s' d' -> { d' with signal=s'.signal })
-
-let makeNot (s:Wire) (d:Wire) =
-    Gate.NOT (fun s' d' -> { d' with signal= ~~~ s'.signal }) |> Operation.Gate
-
-let makeInstruction = function
-    | [| i;              arrow; o |] -> { input = [ makeThroughput i                   ]; operation = makeAssignment (makeThroughput i) (makeThroughput o) ; output = makeThroughput o }
-    | [|    "NOT"   ; i; arrow; o |] -> { input = [ makeThroughput i                   ]; operation = makeNot (Wire (makeThroughput i)) (Wire (makeThroughput o))   ; output = makeThroughput o }
-    | [| i; "AND"   ; j; arrow; o |] -> { input = [ makeThroughput i; makeThroughput j ]; operation = Gate AND   ; output = makeThroughput o }
-    | [| i; "OR"    ; j; arrow; o |] -> { input = [ makeThroughput i; makeThroughput j ]; operation = Gate OR    ; output = makeThroughput o }
-    | [| i; "LSHIFT"; j; arrow; o |] -> { input = [ makeThroughput i; makeThroughput j ]; operation = Gate LSHIFT; output = makeThroughput o }
-    | [| i; "RSHIFT"; j; arrow; o |] -> { input = [ makeThroughput i; makeThroughput j ]; operation = Gate RSHIFT; output = makeThroughput o }
+let doOperation m = function
+    | [| i; "AND"   ; j; arrow; o |] -> doAnd    i j o m
+    | [| i; "OR"    ; j; arrow; o |] -> doOr     i j o m
+    | [| i; "LSHIFT"; j; arrow; o |] -> doLShift i j o m
+    | [| i; "RSHIFT"; j; arrow; o |] -> doRShift i j o m
+    | [|    "NOT"   ; i; arrow; o |] -> doNot    i   o m
+    | [| i;              arrow; o |] -> let i' = toSignal i m in assign o i' m
     |    _                           -> failwith "Undefined"
+
+let isReady (m:Wires) = function
+    | [| "NOT"; i; arrow; o |]
+    | [| i;       arrow; o |]                                 -> isNumeric i || m.ContainsKey i
+    | [| i; _; j; arrow; o |] when isNumeric i                -> m.ContainsKey j
+    | [| i; _; j; arrow; o |] when isNumeric j                -> m.ContainsKey i
+    | [| i; _; j; arrow; o |] when isNumeric i && isNumeric j -> true
+    | [| i; _; j; arrow; o |]                                 -> m.ContainsKey i && m.ContainsKey j
+    |    _                                                    -> false
+
+let rec execute instructions wires =
+    match instructions with
+    | [] -> Map.find "a" wires
+    | _  -> let (ready,notReady) = instructions |> List.partition (isReady wires)
+             in execute notReady (List.fold doOperation wires ready)
 
 let instructions =
     __SOURCE_DIRECTORY__ </> "07.input"
     |> File.ReadAllLines
-    |> map words
-    |> map makeInstruction
+    |> Array.map words
+    |> List.ofArray
 
-// let (|Wire|Signal|) x = x
+// Part One.
+let a = execute instructions Map.empty // 46065
 
-let f = function
-    | Wire w -> Some w
-    | Signal _ -> None
+// Part Two.
+let changeBToA = function
+    | [| _; arrow; "b" |] -> [| string a; arrow; "b" |]
+    |  _ as x             -> x
 
-let collectWires = function
-    | { input=i; operation=_; output=o } -> let wsi =  List.map f i |> List.filter (fun o -> o.IsSome) |> List.map (fun o -> o.Value) |> List.map (fun w -> w.identifier)
-                                            let wo = let x = f o in if x.IsSome then x.Value.identifier else ""
-                                             in wo :: wsi |> Seq.ofList
+let instructions' = instructions |> List.map changeBToA
 
-let collectWires' = function
-    | { input=[Wire i]; operation=_; output=Wire o } -> ()
-    | { input=[Signal i]; operation=_; output=Wire o } -> ()
-    | { input=[Wire i; Wire j]; operation=_; output=Wire o } -> ()
-    | { input=[Wire i; Signal j]; operation=_; output=Wire o } -> ()
-    | { input=[Signal i; Wire j]; operation=_; output=Wire o } -> ()
-    | { input=[Signal i; Signal j]; operation=_; output=Wire o } -> ()
-    | { input=[Wire i]; operation=_; output=Signal o } -> ()
-    | { input=[Signal i]; operation=_; output=Signal o } -> ()
-    | { input=[Wire i; Wire j]; operation=_; output=Signal o } -> ()
-    | { input=[Wire i; Signal j]; operation=_; output=Signal o } -> ()
-    | { input=[Signal i; Wire j]; operation=_; output=Signal o } -> ()
-    | { input=[Signal i; Signal j]; operation=_; output=Signal o } -> ()
-
-let wires = instructions |> Seq.collect collectWires
-
-let execute ws = function
-    | { input=i; operation=Assignment ; output=Signal o } -> ws |> Seq.find (function
-                                                              | { identifier=i'; signal=_ } -> List.map (function | Wire w -> w.identifier | _ -> failwith "Undefined") i |> List.contains i')
-                                                              |> (fun w -> {w with signal=o})
-    | { input=i; operation=Gate NOT   ; output=o } -> ()
-    | { input=i; operation=Gate AND   ; output=o } -> ()
-    | { input=i; operation=Gate OR    ; output=o } -> ()
-    | { input=i; operation=Gate LSHIFT; output=o } -> ()
-    | { input=i; operation=Gate RSHIFT; output=o } -> ()
+let a' = execute instructions' Map.empty // 14134
 
 // vim:ft=fs
