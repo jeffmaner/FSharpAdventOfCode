@@ -1,9 +1,17 @@
 // Day02 is my initial, functional approach to the solution.
 // Day02C is my more object-oriented approach to the solution. I think I like
 // it better in this instance.
-module Day02 =
-  open System.IO
 
+#load "Ancillary.fsx"
+open Ancillary
+
+let presentDimensions =
+    inputFile "02"
+    |> readLines
+    |> map (fun s -> s.Split 'x')
+    |> map (map int >> Seq.toList)
+
+module Day02 =
   type Surface = { length : int; width : int; area : int; perimeter : int }
   let makeSurface l w = { length = l; width = w; area = l * w; perimeter = 2 * (l + w) }
 
@@ -11,19 +19,11 @@ module Day02 =
   let makePresent l w h =
       { face = makeSurface l w; top = makeSurface w h; side = makeSurface h l }
 
-  let inline map xs = Seq.map xs
-  let inline sum xs = Seq.sum xs
-
-  let (</>) p q = Path.Combine (p, q)
-
   let presents =
-    __SOURCE_DIRECTORY__ </> "02.input"
-    |> File.ReadAllLines
-    |> map (fun s -> s.Split [| 'x' |])
-    |> map (map int >> Seq.toList)
-    |> map (function
-                  | [ l; w; h ] -> makePresent l w h
-                  | _           -> failwith "Undefined")
+      presentDimensions
+      |> map (function
+                | [ l; w; h ] -> makePresent l w h
+                | _           -> failwith "Undefined")
 
   // Part One.
   let totalWrappingPaperSquareFeet (ps:Present seq) =
@@ -46,8 +46,6 @@ module Day02 =
   totalRibbonFeet presents // 3783758
 
 module Day02C =
-  open System.IO
-
   type Surface (l, w) =
       member s.Area = l * w
       member s.Perimeter = 2 * (l + w)
@@ -62,19 +60,11 @@ module Day02C =
       member p.RequiredWrappingPaperSquareFeet = p.SurfaceArea + p.SmallestSurface.Area
       member p.RequiredRibbonFeet = p.SmallestSurface.Perimeter + p.Volume
 
-  let inline map f xs = Seq.map f xs
-  let inline sum   xs = Seq.sum   xs
-
-  let (</>) p q = Path.Combine (p, q)
-
   let presents =
-    __SOURCE_DIRECTORY__ </> "02.input"
-    |> File.ReadAllLines
-    |> map (fun s -> s.Split [| 'x' |])
-    |> map (map int >> Seq.toList)
-    |> map (function
-              | [ l; w; h ] -> new Present(l, w, h)
-              | _           -> failwith "Undefined")
+      presentDimensions
+      |> map (function
+                | [ l; w; h ] -> new Present(l, w, h)
+                | _           -> failwith "Undefined")
 
   presents |> (map (fun p -> p.RequiredWrappingPaperSquareFeet) >> sum) // 1588178
   presents |> (map (fun p -> p.RequiredRibbonFeet) >> sum) // 3783758

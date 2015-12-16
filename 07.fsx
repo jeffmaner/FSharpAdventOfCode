@@ -1,11 +1,9 @@
 module Day07
 
-open System.IO
+#load "Ancillary.fsx"
+open Ancillary
 
 type Wires = Map<string,int>
-
-let (</>) p q = Path.Combine (p,q)
-let words (s:string) = s.Split ' '
 
 let isNumeric = System.Int32.TryParse >> fst
 
@@ -58,10 +56,8 @@ let rec execute instructions wires =
              in execute notReady (List.fold doOperation wires ready)
 
 let instructions =
-    __SOURCE_DIRECTORY__ </> "07.input"
-    |> File.ReadAllLines
-    |> Array.map words
-    |> List.ofArray
+    inputFile "07"
+    |> (readLines >> Array.map words >> List.ofArray)
 
 // Part One.
 let a = execute instructions Map.empty // 46065

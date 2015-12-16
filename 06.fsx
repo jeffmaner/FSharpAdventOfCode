@@ -1,18 +1,7 @@
 module Day06
 
-open System.IO
-
-let inline filter f xs = Seq.filter f xs
-let inline fold   f xs = Seq.fold   f xs
-let inline length   xs = Seq.length   xs
-let inline map    f xs = Seq.map    f xs
-let inline sum      xs = Seq.sum      xs
-
-let flip f x y = f y x
-
-let words (s:string) = s.Split ' '
-
-let (</>) p q = Path.Combine (p,q)
+#load "Ancillary.fsx"
+open Ancillary
 
 type Action = TurnOn | TurnOff | Toggle
 
@@ -34,10 +23,8 @@ let newInstruction = function
     |  _                           -> failwith "Undefined"
 
 let instructions =
-    __SOURCE_DIRECTORY__ </> "06.input"
-    |> File.ReadAllLines
-    |> map words
-    |> map newInstruction
+    inputFile "06"
+    |> (readLines >> map words >> map newInstruction)
 
 let flatten (array:'a[,]) = array |> Seq.cast<'a>
 

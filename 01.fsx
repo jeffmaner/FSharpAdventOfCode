@@ -1,18 +1,14 @@
 module Day01
 
-open System.IO
+#load "Ancillary.fsx"
+open Ancillary
 
 let upOrDown = function
     | '(' ->  1
     | ')' -> -1
     |  _  ->  0
 
-let (</>) p q = Path.Combine (p, q)
-
-let instructions =
-  __SOURCE_DIRECTORY__ </> "01.input"
-  |> File.ReadAllText
-  |> List.ofSeq
+let instructions = "01" |> (inputFile >> read >> List.ofSeq)
 
 // First Part.
 let whatFloor = List.map upOrDown >> List.sum

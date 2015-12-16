@@ -1,6 +1,7 @@
 module Day03
 
-open System.IO
+#load "Ancillary.fsx"
+open Ancillary
 
 let move = function
     | '^' -> ( 0, -1)
@@ -19,12 +20,9 @@ let inline reduce f xs = List.reduce f xs
 let inline chunkBySize n xs = List.chunkBySize n xs
 let inline map    f xs = List.map    f xs
 
-let (</>) p q = Path.Combine (p, q)
-
 let directions =
-  __SOURCE_DIRECTORY__ </> "03.input"
-  |> File.ReadAllText
-  |> List.ofSeq
+  inputFile "03"
+  |> (read >> List.ofSeq)
 
 // Part One.
 let deliver ds =
