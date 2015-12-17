@@ -11,12 +11,16 @@ let readLines = File.ReadAllLines
 
 let words (s:string) = s.Split ' '
 
-let inline exists f xs = List.exists f xs
-let inline filter f xs = Seq.filter  f xs
-let inline fold   f xs = Seq.fold    f xs
-let inline length   xs = Seq.length    xs
-let inline map    f xs = Seq.map     f xs
-let inline sum      xs = Seq.sum       xs
+let inline concat   xs = Seq.concat     xs
+let inline elem   x xs = Seq.contains x xs
+let inline exists f xs = List.exists  f xs
+let inline filter f xs = Seq.filter   f xs
+let inline fold   f xs = Seq.fold     f xs
+let inline length   xs = Seq.length     xs
+let inline map    f xs = Seq.map      f xs
+let inline sum      xs = Seq.sum        xs
+
+let inline charList xs = List.ofSeq xs
 
 let inline flip f x y = f y x
 

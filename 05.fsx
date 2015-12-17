@@ -4,29 +4,27 @@ module Day05
 open Ancillary
 
 let inline all      f xs = List.forall  f xs
-let inline contains f xs = Seq.contains f xs
 let inline first      xs = Array.head     xs
 let inline groupBy  f xs = Seq.groupBy  f xs
 let inline indexed    xs = Seq.indexed    xs
 let inline last       xs = Array.last     xs
 let inline pairwise   xs = Seq.pairwise   xs
 let inline reduce   f xs = Seq.reduce   f xs
-let inline toList     xs = List.ofSeq     xs
 let inline toSeq      xs = List.toSeq     xs
 let inline windowed n xs = Seq.windowed n xs
 
 // Part One.
 let isNice s =
     let vowels = [ 'a'; 'e'; 'i'; 'o'; 'u' ] |> toSeq
-    let vowelCount = filter (fun c -> contains c vowels) >> length
+    let vowelCount = filter (fun c -> c |> elem <| vowels) >> length
     let atLeastThreeVowels = vowelCount >> (<=) 3
 
     let repeatedCharCount = pairwise >> filter (fun (x,y) -> x=y) >> length
     let atLeastOneRepeatedChar = repeatedCharCount >> (<) 0
 
-    let offendingCombinations = [ "ab"; "cd"; "pq"; "xy" ] |> toSeq |> map toList
+    let offendingCombinations = [ "ab"; "cd"; "pq"; "xy" ] |> toSeq |> map charList
     let offenses s =
-        let s' = toList s
+        let s' = charList s
          in filter (flip isInfixOf s') offendingCombinations
     let isOffensive = offenses >> length >> (<) 0
     let isNotOffensive = not << isOffensive

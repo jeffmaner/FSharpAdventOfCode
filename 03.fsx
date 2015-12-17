@@ -22,7 +22,7 @@ let inline map    f xs = List.map    f xs
 
 let directions =
   inputFile "03"
-  |> (read >> List.ofSeq)
+  |> (read >> charList)
 
 // Part One.
 let deliver ds =

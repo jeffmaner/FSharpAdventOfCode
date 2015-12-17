@@ -8,7 +8,7 @@ let upOrDown = function
     | ')' -> -1
     |  _  ->  0
 
-let instructions = "01" |> (inputFile >> read >> List.ofSeq)
+let instructions = "01" |> (inputFile >> read >> charList)
 
 // First Part.
 let whatFloor = List.map upOrDown >> List.sum
