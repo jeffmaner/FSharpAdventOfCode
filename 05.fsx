@@ -3,7 +3,6 @@ module Day05
 #load "Ancillary.fsx"
 open Ancillary
 
-let inline all      f xs = List.forall  f xs
 let inline first      xs = Array.head     xs
 let inline groupBy  f xs = Seq.groupBy  f xs
 let inline indexed    xs = Seq.indexed    xs

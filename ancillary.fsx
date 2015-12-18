@@ -11,6 +11,7 @@ let readLines = File.ReadAllLines
 
 let words (s:string) = s.Split ' '
 
+let inline all    f xs = List.forall  f xs
 let inline concat   xs = Seq.concat     xs
 let inline elem   x xs = Seq.contains x xs
 let inline exists f xs = List.exists  f xs
