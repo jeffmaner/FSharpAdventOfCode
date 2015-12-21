@@ -10,7 +10,6 @@ let inline last       xs = Array.last     xs
 let inline pairwise   xs = Seq.pairwise   xs
 let inline reduce   f xs = Seq.reduce   f xs
 let inline toSeq      xs = List.toSeq     xs
-let inline windowed n xs = Seq.windowed n xs
 
 // Part One.
 let isNice s =

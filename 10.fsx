@@ -12,7 +12,7 @@ let lookAndSay ns i =
     let count xs = (length xs, head xs)
     let norm t = (string (fst t)) + (string (snd t))
     let join (xs:string seq) = System.String.Join("", xs)
-    let g = List.rev >> filter some >> map count >> map norm >> join
+    let g = rev >> filter some >> map count >> map norm >> join
     let rec f (cs:char list) a b =
         match cs with
         | x::y::xs when x=y && length a > 0 && x=head a -> f (y::xs) (x::a) b
